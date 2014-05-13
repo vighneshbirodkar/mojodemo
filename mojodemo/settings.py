@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mojo'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -57,8 +58,8 @@ WSGI_APPLICATION = 'mojodemo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -83,7 +84,7 @@ STATIC_URL = '/static/'
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
+DATABASES['default'] =  dj_database_url.config(default='postgres://fjgklcodnzdyyz:RiygN8Oolkg2X6duNAdFP-utp8@ec2-54-243-49-82.compute-1.amazonaws.com:5432/d2gtni8ngj46eu')
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
