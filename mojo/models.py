@@ -5,5 +5,5 @@ from django.db import models
 class MojoUser(models.Model):
     login = models.CharField(max_length=100)
     passwdHash = models.CharField(max_length=64)
-    
+    mojoToken = models.CharField(max_length=100)
     
