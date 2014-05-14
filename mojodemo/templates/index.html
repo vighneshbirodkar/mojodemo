@@ -95,7 +95,8 @@
           <h4>You have had too many attempts</h4>
         </div>
       {% endif %}
-      <form class="form-signin"  action="/" method="get">
+      <form class="form-signin"  action="/" method="post">
+        {% csrf_token %}
         <h2 class="form-signin-heading">Please sign in</h2>
         <input name="login" class="form-control" placeholder="Login" required autofocus>
         <input name="password" type="password" class="form-control" placeholder="Password" required>

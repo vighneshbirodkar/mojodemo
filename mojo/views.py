@@ -1,12 +1,20 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.template import loader, Context
+from django.template import loader, Context, RequestContext
 from mojo.models import MojoUser
+from hashlib import sha256
+from django.shortcuts import redirect
 
 # Create your views here.
 MAX_ATTEMPTS = 100
 def index(request):
     
+    try:
+        request.session['login']
+        return redirect('/upload')
+    except KeyError :
+        pass
+
     template = loader.get_template('index.html')
     errorDict = {}
     
@@ -29,11 +37,32 @@ def index(request):
         if len( request.REQUEST['password'] ) == 0 :
             errorDict['noPass'] = True
     
-#        if not errorDict['noMore'] : 
-#            print '***********'
-#            print MojoUser.objects.filter(login=request.REQUEST['login'])
-    c = Context(errorDict)
+
+        if not errorDict['noMore'] : 
+            #print '***********',request.REQUEST['login']
+            objList =  MojoUser.objects.filter(login=request.REQUEST['login'])
+            if len(objList) == 0 :
+                errorDict['mismatch'] = True
+            else:
+                obj = objList[0]
+                #print "****", sha256(request.REQUEST['password']).hexdigest , obj.passwdHash
+                if sha256(request.REQUEST['password']).hexdigest() == obj.passwdHash :
+                    request.session['login'] = obj.login
+                    return redirect("/upload")
+                else:
+                    errorDict['mismatch'] = True
+    c = RequestContext(request, errorDict)
 
     return HttpResponse(template.render(c))
 
 
+def upload(request):
+    template = loader.get_template('upload.html')
+    c = RequestContext(request,{})
+    if len(request.FILES.keys()) > 0 :
+        pass
+    return HttpResponse(template.render(c))
+
+def logout(request):
+    del request.session['login']
+    return redirect('/')
