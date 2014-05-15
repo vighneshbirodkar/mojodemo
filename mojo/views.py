@@ -19,14 +19,17 @@ def index(request):
 
     template = loader.get_template('index.html')
     errorDict = {}
-    
+
+    #to account for mistakes in the form
     errorDict['mismatch'] = False
     errorDict['noLogin'] = False
     errorDict['noPass'] = False
     errorDict['noMore'] = False
 
+    #if we have variables in the request, user is trying to log in
     if  len(request.REQUEST.keys()) > 0 :
         
+        #to prevent infinite login trials
         try:
             request.session['count'] += 1
         except KeyError:
@@ -80,8 +83,7 @@ def upload(request):
             for name in sheets:
                 worksheet = wb.sheet_by_name(name)
                 num_rows = worksheet.nrows
-                if(worksheet.ncols < 9 ):
-                    raise xlrd.XLRDError
+
                 for i in range(num_rows):
                     offerDict = {}
                     argDict = {}
@@ -96,6 +98,7 @@ def upload(request):
                     argDict['venue']  = worksheet.cell_value(i,8)
                     argDict['redirect-url'] = worksheet.cell_value(i,9)
 
+                    #convert to default strings, unicode strings dont render well
                     for k in argDict.keys() :
                         argDict[k] = str(argDict[k])
                     #print 'quantity = ',type(argDict['quantity'])

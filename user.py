@@ -9,6 +9,6 @@ from mojo.models import MojoUser
 api = instamojo.API()
 api.auth(sys.argv[1],sys.argv[2])
 token = api.token
-
+#store username, and hash of password in database
 user = MojoUser(login = sys.argv[1], passwdHash = hashlib.sha256(sys.argv[2]).hexdigest(), mojoToken = token)
 user.save()

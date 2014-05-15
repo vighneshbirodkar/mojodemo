@@ -16,4 +16,5 @@ Where `username` and `password` are the ones you use for **Instamojo**. Don't wo
 ### Drawbacks
 
 * When users are added through `user.py` I am storing the authentication token. If for some reason this is manually deleted all futher uploads will fail. The  alternative is to store the **Instamojo** username and password on the database and generate a new token everytime.
+* Storing passwords just by hasing, which can be cracked by brute force. Ideal solution would be to use salted hashes.
 * Many others bugs might be lurking, it's my first complete django app.
