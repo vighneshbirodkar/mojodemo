@@ -33,7 +33,7 @@
       <div class="container">
         <div class="navbar-header">
 
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">Upload File</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
@@ -47,8 +47,50 @@
     <div class="container">
 
       <!-- Main component for a primary marketing message or call to action -->
+      
+
       <div class="jumbotron text-center">
-        <h1>Select File</h1>
+
+        {% if offers|length > 0 %}
+          <table class="table table-bordered table-stripped">
+            <tr>
+              <th> Title </td>
+              <th> Error </td>
+              <th> Status </td>
+            </tr>
+            {% for offer in offers %}
+              {% if offer.success %}
+                <tr class="success" >
+              {% else %}
+                <tr class="danger" >
+               {% endif %}
+               
+               <td> {{offer.title}} </td>
+               <td> {{offer.error}} </td>
+               
+               <td>
+                 {% if offer.success %}
+                   {{ "Success" }}
+                 {% else %}
+                   {{ "Failure" }}
+                 {% endif %}
+               </td>
+               </tr>
+
+            {% endfor %}
+
+
+          </table>
+        {% endif %}
+
+        {% if readError %}
+          <div class="bg-danger col-md-4 col-md-offset-4" align="center"  >
+            <h4>File is not an Excel File or Data is not in correct format. </h4>
+          </div>
+       {% endif %}
+        <div>
+          <h1><br/>Select File</h1>
+        </div>
         <form method="post" action="/upload/" enctype="multipart/form-data">
           {% csrf_token %}
           <span class="btn btn-file"><input name="excelfile" type="file" /></span>

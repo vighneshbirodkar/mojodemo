@@ -4,6 +4,8 @@ from django.template import loader, Context, RequestContext
 from mojo.models import MojoUser
 from hashlib import sha256
 from django.shortcuts import redirect
+import xlrd
+from tools import instamojo
 
 # Create your views here.
 MAX_ATTEMPTS = 100
@@ -57,10 +59,71 @@ def index(request):
 
 
 def upload(request):
+    try:
+        request.session['login']
+    except KeyError :
+        return redirect('/')
+
     template = loader.get_template('upload.html')
-    c = RequestContext(request,{})
+    errorDict = {}
+    errorDict['readError'] = False
+    errorDict['offers'] = []
     if len(request.FILES.keys()) > 0 :
-        pass
+        data = request.FILES['excelfile'].read()
+        try :
+            wb = xlrd.open_workbook(file_contents = data)
+            login = request.session['login']
+            obj = MojoUser.objects.filter(login = login)[0]
+            sheets = wb.sheet_names()
+            api = instamojo.API(obj.mojoToken)
+
+            for name in sheets:
+                worksheet = wb.sheet_by_name(name)
+                num_rows = worksheet.nrows
+                if(worksheet.ncols < 9 ):
+                    raise xlrd.XLRDError
+                for i in range(num_rows):
+                    offerDict = {}
+                    argDict = {}
+                    argDict['title'] = worksheet.cell_value(i,0)
+                    argDict['description'] = worksheet.cell_value(i,1)
+                    argDict['currency'] = worksheet.cell_value(i,2)
+                    argDict['base_price'] = str(worksheet.cell_value(i,3))
+                    argDict['quantity'] = str(int(worksheet.cell_value(i,4)))
+                    argDict['start-date'] = worksheet.cell_value(i,5)
+                    argDict['end-date'] = worksheet.cell_value(i,6)
+                    argDict['timezone'] = worksheet.cell_value(i,7)
+                    argDict['venue']  = worksheet.cell_value(i,8)
+                    argDict['redirect-url'] = worksheet.cell_value(i,9)
+
+                    for k in argDict.keys() :
+                        argDict[k] = str(argDict[k])
+                    #print 'quantity = ',type(argDict['quantity'])
+                    reply = api.offer_create(**argDict)
+                    offerDict['title'] = argDict['title']
+                    offerDict['success'] = reply[u'success']
+                    
+                    
+
+                    try:
+                        errors = reply[u'errors']
+                        offerDict['error'] = errors
+                        for k in errors.keys():
+                            val = errors[k]
+                            del errors[k]
+                            errors[str(k)] = [str(x) for x in val]
+                            
+                    except KeyError:
+                        offerDict['error'] = ''
+
+                    errorDict['offers'].append(offerDict)
+
+            
+        except xlrd.XLRDError :
+            errorDict['readError'] = True
+        
+            
+    c = RequestContext(request,errorDict)
     return HttpResponse(template.render(c))
 
 def logout(request):
