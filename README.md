@@ -6,6 +6,11 @@ Upload Excel Files to create Instamojo Offers
 ### Web Link
 http://fathomless-plateau-7249.herokuapp.com/
 
+### Mock Credentianls
+* **Username** - `vighnesh`
+* **Password** - `vnb0112`
+* [Sample Excel File](https://dl.dropboxusercontent.com/u/74846509/wb.xlsx)
+
 ### Usage
 For now users need to be added manually.To add users execute
 ```shell
